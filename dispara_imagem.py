@@ -17,25 +17,12 @@ from PIL import Image # Do pacote Pillow
 import urllib.parse
 
 # --- CONFIGURAÇÕES ---
-ARQUIVO_EXCEL = 'Relatório de Alunos (3).xlsx'  # Nome do seu arquivo
-CAMINHO_IMAGEM = os.path.abspath('indica_amigo.jpg')  # Nome da imagem (deve estar na mesma pasta ou caminho completo)
-COLUNA_ALUNO = 'Celular do Aluno'
-COLUNA_RESPONSAVEL = 'Celular do Responsável Financeiro'
+ARQUIVO_EXCEL = ''  # Nome do seu arquivo
+CAMINHO_IMAGEM = os.path.abspath('')  # Nome da imagem (deve estar na mesma pasta ou caminho completo)
+CELULAR = 'CELULAR' # Nome da coluna de Números de Celular na planilha
+NOME = 'NOME' # Nome da coluna de nomes na planilha
 
-MENSAGEM_LEGENDA = """Olá! Esperamos que esteja tudo bem com você e sua família. ✨
-
-Temos uma novidade incrível para você que faz parte da família *CNA Interlagos* !
-
-Que tal estudar com seus amigos e ainda garantir prêmios? Com a nossa nova campanha de indicação, *todo mundo sai ganhando* :
-
-🎁 *Para VOCÊ:* Um Voucher de *R$ 50,00* na Kalunga por cada amigo que se matricular! 
-🎁 *Para seu AMIGO:* Um *SUPER DESCONTO* especial + um minicurso gratuito à escolha (Inglês, Espanhol ou Criação de Jogos)!
-
-Quanto mais amigos você indicar, mais vouchers você acumula. 💸
-
-*Para participar é muito simples:* basta enviar nosso número para seus amigos e preencher os dados deles aqui: 👉 https://forms.gle/4JdJPhLmhipjqJVZ8
-
-Bora trazer a sua galera para o CNA? Se tiver qualquer dúvida, é só me chamar por aqui! 📲"""
+# Mensagens são escolhidas no Loop principal e podem ser randomizadas por conversa
 
 # Verifica se a imagem existe
 if not os.path.exists(CAMINHO_IMAGEM):
@@ -66,7 +53,7 @@ def copiar_texto_para_clipboard(texto):
 
 def formatar_numero(numero):
     """
-    Limpa e formata o número para o padrão internacional (55 + DDD + Numero).
+    Limpa e formata o número para o padrão internacional (55 + DDD + Numero). - Por enquanto, suporte apenas a numeros brasileiros.
     Remove espaços, traços e parênteses.
     """
     if pd.isna(numero):
@@ -85,8 +72,20 @@ def formatar_numero(numero):
 
     return num_str
 
+
+def formatar_nome(nome_completo):
+    if pd.isna(nome_completo) or str(nome_completo).strip() == "":
+        return "Aluno(a)"  # Fallback se não tiver nome
+
+    # Pega o primeiro nome
+    primeiro_nome = str(nome_completo).split()[0]
+
+    # Capitaliza (primeira letra maiúscula, resto minúscula)
+    return primeiro_nome.capitalize()
+
+
 def localizar_caixa_texto(driver, timeout=30):
-    """Localiza a caixa onde digita o texto (muito mais fácil de achar que o clipe)"""
+    """Localiza a caixa onde digita o texto"""
     return WebDriverWait(driver, timeout).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, "footer div[contenteditable='true']"))
     )
@@ -97,27 +96,34 @@ def main():
     print("📂 Lendo arquivo Excel...")
     df = pd.read_excel(ARQUIVO_EXCEL, dtype=str)
 
-    # Cria uma lista única de números (para não mandar duplicado se aluno e resp forem o mesmo)
-    lista_completa = set()
+    # Cria uma lista única de números (para não mandar duplicado)
+    lista_para_envio = []
+    numeros_ja_adicionados = set() # para evitar duplicidade na lista
 
-    for index, row in df.iterrows():
-        num_aluno = formatar_numero(row.get(COLUNA_ALUNO))
-        num_resp = formatar_numero(row.get(COLUNA_RESPONSAVEL))
+    for _, row in df.iterrows():
+        nome_tratado = formatar_nome(row.get(NOME))
+        nums = [formatar_numero(row.get(CELULAR))] # Em caso de variás colunas, só adicionar mais outro item na lista com a função formatar_numero
 
-        if num_aluno: lista_completa.add(num_aluno)
-        if num_resp: lista_completa.add(num_resp)
-
-    lista_completa = list(lista_completa)
-    print(f"✅ Total de números únicos para envio: {len(lista_completa)}")
+        for num in nums:
+            # Se o número for válido e ainda não estiver na lista
+            if num and num not in numeros_ja_adicionados:
+                lista_para_envio.append({
+                    'numero': num,
+                    'nome': nome_tratado,
+                })
+                numeros_ja_adicionados.add(num)
 
     numeros_ja_processados = []
 
-    lista_envio = [num for num in lista_completa if num not in numeros_ja_processados]
+
+    lista_completa = [item for item in lista_para_envio if item['numero'] not in numeros_ja_processados]
+    print(f"✅ Total de números únicos para envio: {len(lista_para_envio)}")
+
 
     print(f"✅ Números já processados: {len(numeros_ja_processados)}")
-    print(f"🚀 Restam para enviar: {len(lista_envio)}")
+    print(f"✅ Para enviar: {len(lista_completa)}")
 
-    if len(lista_envio) == 0:
+    if len(lista_completa) == 0:
         print("🎉 Todos os números já foram processados! Nada a fazer.")
         return
 
@@ -132,12 +138,42 @@ def main():
     input("⚠️ Escaneie o QR Code e pressione ENTER aqui no terminal quando o WhatsApp carregar completamente...")
 
     total_enviados = 0
+    total_invalidos = 0
     actions = ActionChains(driver)  # Inicializa o controlador de teclado
 
     # 3. Loop de Envio
-    for i, telefone in enumerate(lista_envio):
+    for i, dados in enumerate(lista_completa):
+        telefone = dados['numero']
+        nome = dados['nome']
+
+        saudacoes = ["Olá", "Oi", "Tudo bem", "Oie", "ATENÇÃO", "Hey", "Hello", "Hi", "Fala", "Ei", "E aí", "Salve", "Beleza", "Como vai", "Como está"]
+        emoji_saudacao = ["🌟", "✨", "🚀", "👋", "🚨", "😁", "😊", "🔥", "💙"]
+
+        escolha_saudacao = random.choice(saudacoes)
+        escolha_emoji = random.choice(emoji_saudacao)
+        escolha_emoji2 = random.choice(emoji_saudacao)
+        escolha_emoji3 = random.choice(emoji_saudacao)
+
         try:
-            print(f"[{i + 1}/{len(lista_envio)}] Enviando para {telefone}...")
+            print(f"[{i + 1}/{len(lista_completa)}] Enviando para {nome} ({telefone})...")
+
+            mensagem1 = f"""{escolha_emoji} {escolha_saudacao}, {nome}! {escolha_emoji}
+
+Insira sua primeira mensagem para enviar"""
+
+            mensagem2 = f"""{escolha_saudacao}, {nome}! Insira sua segunda mensagem para enviar {escolha_emoji3}"""
+
+            mensagem3 = f"""{escolha_emoji} *{escolha_saudacao}, {nome}!* {escolha_emoji}
+
+Insira sua terceira mensagem para enviar {escolha_emoji2}"""
+
+            mensagem4 = f"""*{escolha_saudacao}, {nome}! 
+            
+Insira sua quarta mensagem para enviar!"""
+
+            # Escolhe uma mensagem de forma aleatória
+            msgs = [mensagem1, mensagem2, mensagem3, mensagem4]
+            mensagem = random.choice(msgs)
 
             # 1. Copia a imagem para o clipboard
             print("📋 Copiando imagem para a memória...")
@@ -153,46 +189,84 @@ def main():
             except Exception:
                 # Se não achou o anexo em 20s, assume que deu erro no carregamento ou número inválido
                 print(f"⚠️ Alerta: Não foi possível abrir o chat de {telefone}.")
+                numeros_ja_processados.append(telefone)
+                total_invalidos += 1
                 continue  # Pula para o próximo número imediatamente
+
 
             # 3. Clica na caixa e cola (Ctrl + V)
             caixa_texto.click()
-            time.sleep(1)
-            caixa_texto.send_keys(Keys.CONTROL, 'v')
+            time.sleep(random.uniform(1, 4))
 
-            # 4. Aguarda a pré-visualização da imagem aparecer
-            print("   -> Imagem colada, aguardando prévia...")
-            # Pausa vital: O WhatsApp precisa de 2 a 3 segundos para carregar a prévia da imagem.
-            # Se der ENTER antes da prévia aparecer, nada acontece.
-            time.sleep(3)
+            # Trava de Condicional *opcional*, para evitar o máximo a repetição (spam) de imagens
+            teste_aleatorio = random.randint(1, 8)
+            print(f"Teste lógico: {teste_aleatorio}")
+            if teste_aleatorio != 3:
+                caixa_texto.send_keys(Keys.CONTROL, 'v')
 
-            # 5. Carrega o Texto na Memória (Substitui a imagem no clipboard)
-            copiar_texto_para_clipboard(MENSAGEM_LEGENDA)
+                # 4. Aguarda a pré-visualização da imagem aparecer
+                print("   -> Imagem colada, aguardando prévia...")
+                # Pausa vital: O WhatsApp precisa de 2 a 3 segundos para carregar a prévia da imagem.
+                # Se der ENTER antes da prévia aparecer, nada acontece.
+                time.sleep(random.uniform(3, 6))
+            else:
+                print("Imagem não enviada para maior personalização.")
 
-            # 6. Cola o Texto na Legenda
-            # O foco já está automaticamente na legenda quando a imagem abre
-            actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+            # Trava de Condicional *opcional*, para evitar o máximo a repetição (spam) de mensagens
+            if teste_aleatorio != 1:
+                # 5. Carrega o Texto na Memória (Substitui a imagem no clipboard)
+                copiar_texto_para_clipboard(mensagem)
 
-            print("   -> Legenda colada.")
-            time.sleep(1.5)  # Tempo visual para conferência
+                # 6. Cola o Texto na Legenda
+                # O foco já está automaticamente na legenda quando a imagem abre
+                actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+
+                print("   -> Legenda colada.")
+                time.sleep(random.uniform(2, 6))  # Tempo visual para conferência
+            else:
+                print("Legenda não enviada para maior personalização.")
+
+
 
             # 7. Pressiona ENTER
             actions.send_keys(Keys.ENTER).perform()
 
-            time.sleep(2)  # Espera confirmar o envio visualmente
+            time.sleep(4)  # Espera confirmar o envio visualmente
             print("   -> ENTER pressionado. Enviado!")
 
             total_enviados += 1
 
-            # --- LÓGICA DE PAUSA (Constraint do Usuário) ---
-            time.sleep(random.uniform(5,9))
+            numeros_ja_processados.append(telefone)
 
-            # Pausa de 10 minutos a cada 60 envios
-            # Verifica se já enviamos 60 e se não é o último da lista
-            if total_enviados > 0 and total_enviados % 60 == 0 and i < len(lista_envio) - 1:
-                print(f"🛑 Limite de 60 envios atingido. Pausando por 10 minutos para segurança...")
-                time.sleep(600)  # 600 segundos = 10 minutos
+
+            # --- LÓGICA DE PAUSA (Constraint do Usuário) ---
+
+            # Verifica se já enviamos 30 e se não é o último da lista
+            if total_enviados > 0 and total_enviados % 30 == 0 and i < len(lista_completa) - 1:
+                pausa = random.uniform(480, 1200)
+                print(f"🛑 Limite de {total_enviados} envios atingido. Pausando por {pausa} segundos para segurança...")
+                print(f"Números enviados - {len(numeros_ja_processados)}: {numeros_ja_processados}")
+                time.sleep(pausa)
                 print("▶️ Retomando envios...")
+            # Verifica se já enviamos 10 e se não é o último da lista
+            elif total_enviados > 0 and total_enviados % 10 == 0 and i < len(lista_completa) - 1:
+                pausa = random.uniform(120, 480)
+                print(f"🛑 {total_enviados} envios atingido. Pausando por {pausa} segundos para segurança...")
+                print(f"Números enviados - {len(numeros_ja_processados)}: {numeros_ja_processados}")
+                time.sleep(pausa)
+                print("▶️ Retomando envios...")
+            else:
+                if total_invalidos > 0 and total_invalidos % 3 == 0 and i < len(lista_completa) - 1:
+                    pausa = random.uniform(60, 300)
+                    print(f"🛑 {total_invalidos} números inválidos atingido. Pausando por {pausa} segundos para segurança...")
+                    time.sleep(pausa)
+                    print("▶️ Retomando envios...")
+                    total_invalidos = 0
+                else:
+                    pausa = random.uniform(15, 30)
+                    print(f'Esperando {pausa} segundos para o próximo envio.')
+                    time.sleep(pausa)
+
 
         except Exception as e:
             print(f"❌ Erro ao enviar para {telefone}: {e}")
