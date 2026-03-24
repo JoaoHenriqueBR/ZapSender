@@ -1,4 +1,5 @@
 import random
+import struct
 import subprocess
 
 import pandas as pd
@@ -28,6 +29,9 @@ if CAMINHO_DOCUMENTO and not os.path.exists(CAMINHO_DOCUMENTO):
 
 IS_WINDOWS = platform.system() == "Windows"
 
+# Constante do Windows para arrastar e soltar arquivos via clipboard
+CF_HDROP = 15
+
 
 def copiar_texto_para_clipboard(texto):
     """Copia o texto (com emojis) para o Clipboard (Memória)"""
@@ -51,20 +55,53 @@ def copiar_texto_para_clipboard(texto):
             print("⚠️ xclip não encontrado. Instale com: sudo apt install xclip")
 
 
-def anexar_documento(driver, caminho, timeout=30):
+def copiar_arquivo_para_clipboard(caminho_arquivo):
     """
-    Abre o menu de anexo do WhatsApp Web e faz o upload do documento.
-    Documentos suportam legenda, então o texto pode ser adicionado antes de enviar.
+    Coloca a referência do arquivo na área de transferência no Windows.
+    Simula um Ctrl+C feito no Explorer usando a estrutura DROPFILES (CF_HDROP).
+    O WhatsApp Web reconhece esse formato e trata como upload de arquivo.
+    Funciona para qualquer tipo de arquivo: PDF, DOCX, XLSX, etc.
     """
-    # Clica no botão de anexo (ícone de clipe)
+    if not os.path.exists(caminho_arquivo):
+        print(f"❌ Arquivo não encontrado: {caminho_arquivo}")
+        return
+
+    try:
+        import win32clipboard
+    except ImportError:
+        print("⚠️ win32clipboard não disponível. Tente instalar pywin32.")
+        return
+
+    caminho_abs = os.path.abspath(caminho_arquivo)
+
+    # Monta a estrutura DROPFILES:
+    # - offset=20: posição onde começa a lista de arquivos
+    # - fWide=1: usa Unicode (UTF-16)
+    offset = 20
+    dropfiles_header = struct.pack("IIIII", offset, 0, 0, 0, 1)
+
+    # O caminho termina com null duplo (exigência do formato)
+    files_data = caminho_abs.encode("utf-16-le") + b"\0\0"
+
+    data = dropfiles_header + files_data
+
+    win32clipboard.OpenClipboard()
+    win32clipboard.EmptyClipboard()
+    win32clipboard.SetClipboardData(CF_HDROP, data)
+    win32clipboard.CloseClipboard()
+    print("   -> Documento copiado para o clipboard (CF_HDROP).")
+
+
+def anexar_documento_linux(driver, caminho, timeout=30):
+    """
+    Fallback para Linux: abre o menu de anexo via Selenium e faz o upload do documento.
+    """
     attach_btn = WebDriverWait(driver, timeout).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-icon='attach-menu-plus']"))
     )
     attach_btn.click()
     time.sleep(1)
 
-    # Localiza o input de arquivo para documentos
-    # O seletor 'input[accept="*"]' corresponde ao input de documentos no WhatsApp Web
     file_inputs = driver.find_elements(By.CSS_SELECTOR, "input[type='file']")
     documento_input = None
     for fi in file_inputs:
@@ -74,10 +111,10 @@ def anexar_documento(driver, caminho, timeout=30):
             break
 
     if documento_input is None:
-        documento_input = file_inputs[0]  # fallback para o primeiro input encontrado
+        documento_input = file_inputs[0]
 
     documento_input.send_keys(os.path.abspath(caminho))
-    print("   -> Documento anexado.")
+    print("   -> Documento anexado via Selenium.")
     time.sleep(random.uniform(2, 4))
 
 
@@ -215,7 +252,18 @@ Insira sua quarta mensagem para enviar!"""
 
             # 2. Anexa o documento
             print("📄 Anexando documento...")
-            anexar_documento(driver, CAMINHO_DOCUMENTO)
+            if IS_WINDOWS:
+                # Windows: copia o arquivo para o clipboard via CF_HDROP e cola na caixa de texto
+                copiar_arquivo_para_clipboard(CAMINHO_DOCUMENTO)
+                caixa_texto = localizar_caixa_texto(driver)
+                caixa_texto.click()
+                time.sleep(random.uniform(1, 2))
+                caixa_texto.send_keys(Keys.CONTROL, 'v')
+                # Aguarda o WhatsApp carregar a prévia do documento
+                time.sleep(random.uniform(3, 5))
+            else:
+                # Linux: usa Selenium para interagir com o input de arquivo
+                anexar_documento_linux(driver, CAMINHO_DOCUMENTO)
 
             # 3. Trava condicional para evitar repetição de mensagens
             teste_aleatorio = random.randint(1, 8)
