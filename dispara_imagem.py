@@ -1,4 +1,6 @@
 import random
+import subprocess
+import sys
 
 import pandas as pd
 from selenium import webdriver
@@ -12,9 +14,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
 from io import BytesIO
-import win32clipboard # Do pacote pywin32
-from PIL import Image # Do pacote Pillow
+from PIL import Image
 import urllib.parse
+import platform
 
 # --- CONFIGURAÇÕES ---
 ARQUIVO_EXCEL = ''  # Nome do seu arquivo
@@ -25,31 +27,68 @@ NOME = 'NOME' # Nome da coluna de nomes na planilha
 # Mensagens são escolhidas no Loop principal e podem ser randomizadas por conversa
 
 # Verifica se a imagem existe
-if not os.path.exists(CAMINHO_IMAGEM):
+if CAMINHO_IMAGEM and not os.path.exists(CAMINHO_IMAGEM):
     raise FileNotFoundError(f"Imagem não encontrada em: {CAMINHO_IMAGEM}")
+
+IS_WINDOWS = platform.system() == "Windows"
 
 def copiar_imagem_para_clipboard(caminho):
     """
-    Carrega a imagem e a coloca na área de transferência do Windows (Ctrl+C manual)
+    Carrega a imagem e a coloca na área de transferência.
+    Suporta Windows (win32clipboard) e Linux (xclip).
     """
-    image = Image.open(caminho)
-    output = BytesIO()
-    image.convert("RGB").save(output, "BMP")
-    data = output.getvalue()[14:]
-    output.close()
+    if IS_WINDOWS:
+        try:
+            import win32clipboard
+            image = Image.open(caminho)
+            output = BytesIO()
+            image.convert("RGB").save(output, "BMP")
+            data = output.getvalue()[14:]
+            output.close()
+            win32clipboard.OpenClipboard()
+            win32clipboard.EmptyClipboard()
+            win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)
+            win32clipboard.CloseClipboard()
+        except ImportError:
+            print("⚠️ win32clipboard não disponível. Tente instalar pywin32.")
+    else:
+        # Linux: converte para PNG e usa xclip
+        image = Image.open(caminho)
+        png_path = "/tmp/_zapsender_clip.png"
+        image.convert("RGBA").save(png_path, "PNG")
+        try:
+            subprocess.run(
+                ["xclip", "-selection", "clipboard", "-t", "image/png", "-i", png_path],
+                check=True
+            )
+        except FileNotFoundError:
+            print("⚠️ xclip não encontrado. Instale com: sudo apt install xclip")
+        except subprocess.CalledProcessError as e:
+            print(f"⚠️ Erro ao copiar imagem para clipboard: {e}")
 
-    win32clipboard.OpenClipboard()
-    win32clipboard.EmptyClipboard()
-    win32clipboard.SetClipboardData(win32clipboard.CF_DIB, data)
-    win32clipboard.CloseClipboard()
 
 def copiar_texto_para_clipboard(texto):
     """Copia o texto (com emojis) para o Clipboard (Memória)"""
-    win32clipboard.OpenClipboard()
-    win32clipboard.EmptyClipboard()
-    # CF_UNICODETEXT é essencial para emojis e acentos funcionarem
-    win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, texto)
-    win32clipboard.CloseClipboard()
+    if IS_WINDOWS:
+        try:
+            import win32clipboard
+            win32clipboard.OpenClipboard()
+            win32clipboard.EmptyClipboard()
+            win32clipboard.SetClipboardData(win32clipboard.CF_UNICODETEXT, texto)
+            win32clipboard.CloseClipboard()
+        except ImportError:
+            print("⚠️ win32clipboard não disponível. Tente instalar pywin32.")
+    else:
+        # Linux: usa xclip
+        try:
+            proc = subprocess.Popen(
+                ["xclip", "-selection", "clipboard"],
+                stdin=subprocess.PIPE
+            )
+            proc.communicate(input=texto.encode("utf-8"))
+        except FileNotFoundError:
+            print("⚠️ xclip não encontrado. Instale com: sudo apt install xclip")
+
 
 def formatar_numero(numero):
     """
