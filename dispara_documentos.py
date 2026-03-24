@@ -192,7 +192,16 @@ def main():
                 })
                 numeros_ja_adicionados.add(num)
 
+    # Determina o arquivo de rastreamento baseado no nome do Excel
+    nome_base = os.path.splitext(os.path.basename(ARQUIVO_EXCEL))[0]
+    arquivo_processados = f"{nome_base}_processados.txt"
+
+    # Carrega números já processados do arquivo (se existir)
     numeros_ja_processados = []
+    if os.path.exists(arquivo_processados):
+        with open(arquivo_processados, "r", encoding="utf-8") as f:
+            numeros_ja_processados = [linha.strip() for linha in f if linha.strip()]
+        print(f"📋 {len(numeros_ja_processados)} números já processados carregados de '{arquivo_processados}'.")
 
     lista_completa = [item for item in lista_para_envio if item['numero'] not in numeros_ja_processados]
     print(f"✅ Total de números únicos para envio: {len(lista_para_envio)}")
@@ -273,6 +282,8 @@ Insira sua quarta mensagem para enviar!"""
             except Exception:
                 print(f"⚠️ Alerta: Não foi possível abrir o chat de {telefone}.")
                 numeros_ja_processados.append(telefone)
+                with open(arquivo_processados, "a", encoding="utf-8") as f:
+                    f.write(telefone + "\n")
                 total_invalidos += 1
                 continue
 
@@ -318,6 +329,8 @@ Insira sua quarta mensagem para enviar!"""
 
             total_enviados += 1
             numeros_ja_processados.append(telefone)
+            with open(arquivo_processados, "a", encoding="utf-8") as f:
+                f.write(telefone + "\n")
 
             # --- LÓGICA DE PAUSA ---
             if total_enviados > 0 and total_enviados % 30 == 0 and i < len(lista_completa) - 1:
