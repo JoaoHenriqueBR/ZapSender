@@ -17,6 +17,8 @@ from io import BytesIO
 from PIL import Image
 import platform
 
+from datetime import datetime
+
 # --- CONFIGURAÇÕES ---
 ARQUIVO_EXCEL = ''  # Nome do seu arquivo
 CAMINHO_IMAGEM = os.path.abspath('')  # Nome da imagem (deve estar na mesma pasta ou caminho completo)
@@ -201,14 +203,23 @@ def main():
     total_invalidos = 0
     actions = ActionChains(driver)  # Inicializa o controlador de teclado
 
+    hora_atual = datetime.now().hour
+    if hora_atual >= 18:
+        hora = "Boa noite"
+    elif hora_atual >= 12:
+        hora = "Boa tarde"
+    else:
+        hora = "Bom dia"
+        
+
     # 3. Loop de Envio
     for i, dados in enumerate(lista_completa):
         telefone = dados['numero']
         nome = dados['nome']
 
-        saudacoes_inicio = ["Olá", "Oi", "Oie", "Hey", "Hello", "Hi", "Fala", "Ei", "E aí", "Salve"]
-        saudacoes_pergunta = ["Tudo bem", "Como vai", "Como está", "Como você vai", "Como você está", "Beleza"]
-        emoji_saudacao = ["🌟", "✨", "🚀", "👋", "🚨", "😁", "😊", "🔥", "💙"]
+        saudacoes_inicio = ["Olá", "Oi", "Oie", "Hey", "Hello", "Hi", "Fala", "Ei", "E aí", "Salve", hora]
+        saudacoes_pergunta = ["Tudo bem", "Como vai", "Como está", "Como você vai", "Como você está", "Beleza", "Tudo certo", "Tudo bem com você"]
+        emoji_saudacao = ["🌟", "✨", "🚀", "👋", "🚨", "😁", "😊", "🔥", "💙", "💚", "💛", "💜", "💙", "🗣️"]
 
         escolha_saudacao = random.choice(saudacoes_inicio)
         escolha_pergunta = random.choice(saudacoes_pergunta)
