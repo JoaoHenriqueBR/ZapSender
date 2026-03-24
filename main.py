@@ -52,12 +52,12 @@ def coletar_configuracoes(tipo):
 
     while True:
         try:
-            qtd = int(input("\n  Quantas mensagens deseja configurar? (1 a 4): ").strip())
-            if 1 <= qtd <= 4:
+            qtd = int(input("\n  Quantas mensagens deseja configurar? (minimo 1): ").strip())
+            if qtd >= 1:
                 break
-            print("  ⚠️  Digite um numero entre 1 e 4.")
+            print("  ⚠️  Configure pelo menos 1 mensagem.")
         except ValueError:
-            print("  ⚠️  Entrada invalida. Digite um numero entre 1 e 4.")
+            print("  ⚠️  Entrada invalida. Digite um numero inteiro.")
 
     print(f"  Uma das {qtd} sera escolhida aleatoriamente a cada envio.")
 
