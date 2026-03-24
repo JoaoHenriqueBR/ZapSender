@@ -311,14 +311,6 @@ Insira sua quarta mensagem para enviar!"""
                 teste_aleatorio = 2  # valor neutro: garante envio completo
             if teste_aleatorio != 1:
                 # 4. Adiciona legenda ao documento (documentos suportam legenda no WhatsApp)
-                try:
-                    legenda = localizar_legenda_documento(driver, timeout=10)
-                    legenda.click()
-                except Exception:
-                    # Se não encontrar a caixa de legenda, tenta a caixa de texto principal
-                    legenda = localizar_caixa_texto(driver)
-                    legenda.click()
-
                 copiar_texto_para_clipboard(mensagem)
                 actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
                 print("   -> Legenda colada.")
