@@ -1,6 +1,5 @@
 import random
 import subprocess
-import sys
 
 import pandas as pd
 from selenium import webdriver
@@ -15,7 +14,6 @@ import time
 import os
 from io import BytesIO
 from PIL import Image
-import urllib.parse
 import platform
 
 # --- CONFIGURAÇÕES ---
