@@ -50,10 +50,18 @@ def coletar_configuracoes(tipo):
     arquivo_excel = input("\n  Caminho do arquivo Excel: ").strip()
     caminho_arquivo = input(f"  Caminho do {tipo}: ").strip()
 
-    print("\n  Configure suas 4 mensagens.")
-    print("  Uma sera escolhida aleatoriamente a cada envio.")
+    while True:
+        try:
+            qtd = int(input("\n  Quantas mensagens deseja configurar? (1 a 4): ").strip())
+            if 1 <= qtd <= 4:
+                break
+            print("  ⚠️  Digite um numero entre 1 e 4.")
+        except ValueError:
+            print("  ⚠️  Entrada invalida. Digite um numero entre 1 e 4.")
 
-    mensagens = [coletar_mensagem(i) for i in range(1, 5)]
+    print(f"  Uma das {qtd} sera escolhida aleatoriamente a cada envio.")
+
+    mensagens = [coletar_mensagem(i) for i in range(1, qtd + 1)]
 
     return {
         "ARQUIVO_EXCEL": arquivo_excel,
