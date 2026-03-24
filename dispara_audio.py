@@ -151,6 +151,7 @@ def main():
         CELULAR = _config.get("COLUNA_CELULAR", CELULAR)
         NOME = _config.get("COLUNA_NOME", NOME)
     _mensagens_custom = _config.get("MENSAGENS", [])
+    _teste_aleatorio_ativo = _config.get("TESTE_ALEATORIO", True)
 
     # Valida o arquivo de mídia
     if CAMINHO_AUDIO and not os.path.exists(CAMINHO_AUDIO):
@@ -293,8 +294,11 @@ Insira sua quarta mensagem para enviar!"""
             print("   -> Audio enviado!")
 
             # 4. Trava condicional para evitar repetição de mensagens
-            teste_aleatorio = random.randint(1, 8)
-            print(f"Teste lógico: {teste_aleatorio}")
+            if _teste_aleatorio_ativo:
+                teste_aleatorio = random.randint(1, 8)
+                print(f"Teste lógico: {teste_aleatorio}")
+            else:
+                teste_aleatorio = 2  # valor neutro: garante envio completo
             if teste_aleatorio != 1:
                 # 5. Envia a mensagem de texto separadamente (audio não suporta legenda)
                 caixa_texto = localizar_caixa_texto(driver)

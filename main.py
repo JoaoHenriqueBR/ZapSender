@@ -52,6 +52,13 @@ def coletar_configuracoes(tipo):
     coluna_celular = input("  Nome da coluna de celular [CELULAR]: ").strip() or "CELULAR"
     coluna_nome = input("  Nome da coluna de nomes   [NOME]: ").strip() or "NOME"
 
+    resp = input("\n  Ativar testes aleatorios na estrutura do envio? [s/N]: ").strip().lower()
+    teste_aleatorio_ativo = resp in ("s", "sim", "y", "yes")
+    if teste_aleatorio_ativo:
+        print("  ⚠️  Testes ativos: arquivo ou mensagem podem ser omitidos aleatoriamente.")
+    else:
+        print("  ✅  Testes desativados: arquivo e mensagem sempre enviados.")
+
     while True:
         try:
             qtd = int(input("\n  Quantas mensagens deseja configurar? (minimo 1): ").strip())
@@ -70,6 +77,7 @@ def coletar_configuracoes(tipo):
         "CAMINHO_ARQUIVO": caminho_arquivo,
         "COLUNA_CELULAR": coluna_celular,
         "COLUNA_NOME": coluna_nome,
+        "TESTE_ALEATORIO": teste_aleatorio_ativo,
         "MENSAGENS": mensagens,
     }
 

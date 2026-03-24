@@ -136,6 +136,7 @@ def main():
         CELULAR = _config.get("COLUNA_CELULAR", CELULAR)
         NOME = _config.get("COLUNA_NOME", NOME)
     _mensagens_custom = _config.get("MENSAGENS", [])
+    _teste_aleatorio_ativo = _config.get("TESTE_ALEATORIO", True)
 
     # Valida o arquivo de mídia
     if CAMINHO_IMAGEM and not os.path.exists(CAMINHO_IMAGEM):
@@ -274,8 +275,11 @@ Insira sua quarta mensagem para enviar!"""
             time.sleep(random.uniform(1, 4))
 
             # Trava de Condicional *opcional*, para evitar o máximo a repetição (spam) de imagens
-            teste_aleatorio = random.randint(1, 8)
-            print(f"Teste lógico: {teste_aleatorio}")
+            if _teste_aleatorio_ativo:
+                teste_aleatorio = random.randint(1, 8)
+                print(f"Teste lógico: {teste_aleatorio}")
+            else:
+                teste_aleatorio = 2  # valor neutro: garante envio completo
             if teste_aleatorio != 3:
                 caixa_texto.send_keys(Keys.CONTROL, 'v')
 
