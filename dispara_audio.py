@@ -141,13 +141,15 @@ def localizar_caixa_texto(driver, timeout=30):
 
 
 def main():
-    global ARQUIVO_EXCEL, CAMINHO_AUDIO
+    global ARQUIVO_EXCEL, CAMINHO_AUDIO, CELULAR, NOME
 
     # Lê configurações centralizadas do main.py (se disponíveis)
     _config = json.loads(os.environ.get("ZAPSENDER_CONFIG", "{}"))
     if _config:
         ARQUIVO_EXCEL = _config.get("ARQUIVO_EXCEL", ARQUIVO_EXCEL)
         CAMINHO_AUDIO = _config.get("CAMINHO_ARQUIVO", CAMINHO_AUDIO)
+        CELULAR = _config.get("COLUNA_CELULAR", CELULAR)
+        NOME = _config.get("COLUNA_NOME", NOME)
     _mensagens_custom = _config.get("MENSAGENS", [])
 
     # Valida o arquivo de mídia

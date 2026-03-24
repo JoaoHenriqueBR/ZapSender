@@ -49,6 +49,8 @@ def coletar_configuracoes(tipo):
 
     arquivo_excel = input("\n  Caminho do arquivo Excel: ").strip()
     caminho_arquivo = input(f"  Caminho do {tipo}: ").strip()
+    coluna_celular = input("  Nome da coluna de celular [CELULAR]: ").strip() or "CELULAR"
+    coluna_nome = input("  Nome da coluna de nomes   [NOME]: ").strip() or "NOME"
 
     while True:
         try:
@@ -66,6 +68,8 @@ def coletar_configuracoes(tipo):
     return {
         "ARQUIVO_EXCEL": arquivo_excel,
         "CAMINHO_ARQUIVO": caminho_arquivo,
+        "COLUNA_CELULAR": coluna_celular,
+        "COLUNA_NOME": coluna_nome,
         "MENSAGENS": mensagens,
     }
 
