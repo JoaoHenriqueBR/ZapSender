@@ -1,4 +1,5 @@
 import random
+import struct
 import subprocess
 
 import pandas as pd
@@ -13,6 +14,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
 import platform
+
+# Constante do Windows para arrastar e soltar arquivos via clipboard
+CF_HDROP = 15
 
 # --- CONFIGURAÇÕES ---
 ARQUIVO_EXCEL = ''  # Nome do seu arquivo Excel
@@ -51,25 +55,57 @@ def copiar_texto_para_clipboard(texto):
             print("⚠️ xclip não encontrado. Instale com: sudo apt install xclip")
 
 
-def anexar_audio(driver, caminho, timeout=30):
+def copiar_arquivo_para_clipboard(caminho_arquivo):
     """
-    Abre o menu de anexo do WhatsApp Web e faz o upload do arquivo de audio.
-    Como audios não suportam legenda no WhatsApp, o arquivo é enviado sozinho.
+    Coloca a referência do arquivo na área de transferência no Windows.
+    Simula um Ctrl+C feito no Explorer usando a estrutura DROPFILES (CF_HDROP).
+    O WhatsApp Web reconhece esse formato e trata como upload de arquivo.
     """
-    # Clica no botão de anexo (ícone de clipe)
+    if not os.path.exists(caminho_arquivo):
+        print(f"❌ Arquivo não encontrado: {caminho_arquivo}")
+        return
+
+    try:
+        import win32clipboard
+    except ImportError:
+        print("⚠️ win32clipboard não disponível. Tente instalar pywin32.")
+        return
+
+    caminho_abs = os.path.abspath(caminho_arquivo)
+
+    # Monta a estrutura DROPFILES:
+    # - offset=20: posição onde começa a lista de arquivos
+    # - fWide=1: usa Unicode (UTF-16)
+    offset = 20
+    dropfiles_header = struct.pack("IIIII", offset, 0, 0, 0, 1)
+
+    # O caminho termina com null duplo (exigência do formato)
+    files_data = caminho_abs.encode("utf-16-le") + b"\0\0"
+
+    data = dropfiles_header + files_data
+
+    win32clipboard.OpenClipboard()
+    win32clipboard.EmptyClipboard()
+    win32clipboard.SetClipboardData(CF_HDROP, data)
+    win32clipboard.CloseClipboard()
+    print("   -> Arquivo de audio copiado para o clipboard (CF_HDROP).")
+
+
+def anexar_audio_linux(driver, caminho, timeout=30):
+    """
+    Fallback para Linux: abre o menu de anexo via Selenium e faz o upload do arquivo.
+    """
     attach_btn = WebDriverWait(driver, timeout).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, "[data-icon='attach-menu-plus']"))
     )
     attach_btn.click()
     time.sleep(1)
 
-    # Encontra o input de arquivo para documentos/audios e envia o caminho absoluto
-    # WhatsApp Web aceita áudios via o input de arquivos genérico
     file_input = WebDriverWait(driver, timeout).until(
         EC.presence_of_element_located((By.CSS_SELECTOR, "input[type='file']"))
     )
     file_input.send_keys(os.path.abspath(caminho))
-    print("   -> Arquivo de audio anexado.")
+    print("   -> Arquivo de audio anexado via Selenium.")
     time.sleep(random.uniform(2, 4))
 
 
@@ -200,7 +236,18 @@ Insira sua quarta mensagem para enviar!"""
 
             # 2. Anexa o arquivo de audio
             print("🎵 Anexando arquivo de audio...")
-            anexar_audio(driver, CAMINHO_AUDIO)
+            if IS_WINDOWS:
+                # Windows: copia o arquivo para o clipboard via CF_HDROP e cola na caixa de texto
+                copiar_arquivo_para_clipboard(CAMINHO_AUDIO)
+                caixa_texto = localizar_caixa_texto(driver)
+                caixa_texto.click()
+                time.sleep(random.uniform(1, 2))
+                caixa_texto.send_keys(Keys.CONTROL, 'v')
+                # Aguarda o WhatsApp carregar a prévia do arquivo
+                time.sleep(random.uniform(3, 5))
+            else:
+                # Linux: usa Selenium para interagir com o input de arquivo
+                anexar_audio_linux(driver, CAMINHO_AUDIO)
 
             # 3. Confirma o envio do audio (ENTER na tela de preview)
             # WhatsApp Web exibe uma preview do audio antes de enviar
