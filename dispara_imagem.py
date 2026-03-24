@@ -183,10 +183,12 @@ def main():
         telefone = dados['numero']
         nome = dados['nome']
 
-        saudacoes = ["Olá", "Oi", "Tudo bem", "Oie", "ATENÇÃO", "Hey", "Hello", "Hi", "Fala", "Ei", "E aí", "Salve", "Beleza", "Como vai", "Como está"]
+        saudacoes_inicio = ["Olá", "Oi", "Oie", "ATENÇÃO", "Hey", "Hello", "Hi", "Fala", "Ei", "E aí", "Salve", "Beleza"]
+        saudacoes_pergunta = ["Tudo bem", "Como vai", "Como está"]
         emoji_saudacao = ["🌟", "✨", "🚀", "👋", "🚨", "😁", "😊", "🔥", "💙"]
 
-        escolha_saudacao = random.choice(saudacoes)
+        escolha_saudacao = random.choice(saudacoes_inicio)
+        escolha_pergunta = random.choice(saudacoes_pergunta)
         escolha_emoji = random.choice(emoji_saudacao)
         escolha_emoji2 = random.choice(emoji_saudacao)
         escolha_emoji3 = random.choice(emoji_saudacao)
