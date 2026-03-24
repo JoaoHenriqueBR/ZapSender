@@ -1,3 +1,4 @@
+import json
 import random
 import subprocess
 
@@ -23,10 +24,6 @@ CELULAR = 'CELULAR' # Nome da coluna de Números de Celular na planilha
 NOME = 'NOME' # Nome da coluna de nomes na planilha
 
 # Mensagens são escolhidas no Loop principal e podem ser randomizadas por conversa
-
-# Verifica se a imagem existe
-if CAMINHO_IMAGEM and not os.path.exists(CAMINHO_IMAGEM):
-    raise FileNotFoundError(f"Imagem não encontrada em: {CAMINHO_IMAGEM}")
 
 IS_WINDOWS = platform.system() == "Windows"
 
@@ -129,6 +126,20 @@ def localizar_caixa_texto(driver, timeout=30):
 
 
 def main():
+    global ARQUIVO_EXCEL, CAMINHO_IMAGEM
+
+    # Lê configurações centralizadas do main.py (se disponíveis)
+    _config = json.loads(os.environ.get("ZAPSENDER_CONFIG", "{}"))
+    if _config:
+        ARQUIVO_EXCEL = _config.get("ARQUIVO_EXCEL", ARQUIVO_EXCEL)
+        CAMINHO_IMAGEM = _config.get("CAMINHO_ARQUIVO", CAMINHO_IMAGEM)
+    _mensagens_custom = _config.get("MENSAGENS", [])
+
+    # Valida o arquivo de mídia
+    if CAMINHO_IMAGEM and not os.path.exists(CAMINHO_IMAGEM):
+        print(f"❌ Imagem não encontrada: {CAMINHO_IMAGEM}")
+        return
+
     # 1. Carregar e Tratar Dados
     print("📂 Lendo arquivo Excel...")
     df = pd.read_excel(ARQUIVO_EXCEL, dtype=str)
@@ -196,23 +207,35 @@ def main():
         try:
             print(f"[{i + 1}/{len(lista_completa)}] Enviando para {nome} ({telefone})...")
 
-            mensagem1 = f"""{escolha_emoji} {escolha_saudacao}, {nome}! {escolha_emoji}
+            if _mensagens_custom:
+                template = random.choice(_mensagens_custom)
+                try:
+                    mensagem = template.format(
+                        nome=nome,
+                        escolha_saudacao=escolha_saudacao,
+                        escolha_pergunta=escolha_pergunta,
+                        escolha_emoji=escolha_emoji,
+                        escolha_emoji2=escolha_emoji2,
+                        escolha_emoji3=escolha_emoji3,
+                    )
+                except (KeyError, IndexError):
+                    mensagem = template
+            else:
+                mensagem1 = f"""{escolha_emoji} {escolha_saudacao}, {nome}! {escolha_emoji}
 
 Insira sua primeira mensagem para enviar"""
 
-            mensagem2 = f"""{escolha_saudacao}, {nome}! Insira sua segunda mensagem para enviar {escolha_emoji3}"""
+                mensagem2 = f"""{escolha_saudacao}, {nome}! Insira sua segunda mensagem para enviar {escolha_emoji3}"""
 
-            mensagem3 = f"""{escolha_emoji} *{escolha_saudacao}, {nome}!* {escolha_emoji}
+                mensagem3 = f"""{escolha_emoji} *{escolha_saudacao}, {nome}!* {escolha_emoji}
 
 Insira sua terceira mensagem para enviar {escolha_emoji2}"""
 
-            mensagem4 = f"""*{escolha_saudacao}, {nome}! 
-            
+                mensagem4 = f"""*{escolha_saudacao}, {nome}!
+
 Insira sua quarta mensagem para enviar!"""
 
-            # Escolhe uma mensagem de forma aleatória
-            msgs = [mensagem1, mensagem2, mensagem3, mensagem4]
-            mensagem = random.choice(msgs)
+                mensagem = random.choice([mensagem1, mensagem2, mensagem3, mensagem4])
 
             # 1. Copia a imagem para o clipboard
             print("📋 Copiando imagem para a memória...")

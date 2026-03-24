@@ -1,3 +1,4 @@
+import json
 import random
 import struct
 import subprocess
@@ -25,10 +26,6 @@ CELULAR = 'CELULAR'  # Nome da coluna de Números de Celular na planilha
 NOME = 'NOME'        # Nome da coluna de nomes na planilha
 
 # Mensagens são escolhidas no Loop principal e podem ser randomizadas por conversa
-
-# Verifica se o audio existe
-if CAMINHO_AUDIO and not os.path.exists(CAMINHO_AUDIO):
-    raise FileNotFoundError(f"Audio não encontrado em: {CAMINHO_AUDIO}")
 
 IS_WINDOWS = platform.system() == "Windows"
 
@@ -144,6 +141,20 @@ def localizar_caixa_texto(driver, timeout=30):
 
 
 def main():
+    global ARQUIVO_EXCEL, CAMINHO_AUDIO
+
+    # Lê configurações centralizadas do main.py (se disponíveis)
+    _config = json.loads(os.environ.get("ZAPSENDER_CONFIG", "{}"))
+    if _config:
+        ARQUIVO_EXCEL = _config.get("ARQUIVO_EXCEL", ARQUIVO_EXCEL)
+        CAMINHO_AUDIO = _config.get("CAMINHO_ARQUIVO", CAMINHO_AUDIO)
+    _mensagens_custom = _config.get("MENSAGENS", [])
+
+    # Valida o arquivo de mídia
+    if CAMINHO_AUDIO and not os.path.exists(CAMINHO_AUDIO):
+        print(f"❌ Audio não encontrado: {CAMINHO_AUDIO}")
+        return
+
     # 1. Carregar e Tratar Dados
     print("📂 Lendo arquivo Excel...")
     df = pd.read_excel(ARQUIVO_EXCEL, dtype=str)
@@ -204,22 +215,35 @@ def main():
         try:
             print(f"[{i + 1}/{len(lista_completa)}] Enviando para {nome} ({telefone})...")
 
-            mensagem1 = f"""{escolha_emoji} {escolha_saudacao}, {nome}! {escolha_emoji}
+            if _mensagens_custom:
+                template = random.choice(_mensagens_custom)
+                try:
+                    mensagem = template.format(
+                        nome=nome,
+                        escolha_saudacao=escolha_saudacao,
+                        escolha_pergunta=escolha_pergunta,
+                        escolha_emoji=escolha_emoji,
+                        escolha_emoji2=escolha_emoji2,
+                        escolha_emoji3=escolha_emoji3,
+                    )
+                except (KeyError, IndexError):
+                    mensagem = template
+            else:
+                mensagem1 = f"""{escolha_emoji} {escolha_saudacao}, {nome}! {escolha_emoji}
 
 Insira sua primeira mensagem para enviar"""
 
-            mensagem2 = f"""{escolha_saudacao}, {nome}! Insira sua segunda mensagem para enviar {escolha_emoji3}"""
+                mensagem2 = f"""{escolha_saudacao}, {nome}! Insira sua segunda mensagem para enviar {escolha_emoji3}"""
 
-            mensagem3 = f"""{escolha_emoji} *{escolha_saudacao}, {nome}!* {escolha_emoji}
+                mensagem3 = f"""{escolha_emoji} *{escolha_saudacao}, {nome}!* {escolha_emoji}
 
 Insira sua terceira mensagem para enviar {escolha_emoji2}"""
 
-            mensagem4 = f"""*{escolha_saudacao}, {nome}!
+                mensagem4 = f"""*{escolha_saudacao}, {nome}!
 
 Insira sua quarta mensagem para enviar!"""
 
-            msgs = [mensagem1, mensagem2, mensagem3, mensagem4]
-            mensagem = random.choice(msgs)
+                mensagem = random.choice([mensagem1, mensagem2, mensagem3, mensagem4])
 
             # Abre a conversa direta
             link = f"https://web.whatsapp.com/send?phone={telefone}"
