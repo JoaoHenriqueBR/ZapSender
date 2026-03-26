@@ -1,7 +1,11 @@
 """
-ZapSender - Message and Media Sender Script for WhatsApp
+ZapSender - Message and Media Sender Script
 
 Copyright (C) 2026  João Henrique Alves Ferreira <joaohenrique.jh103@protonmail.com>
+
+DISCLAIMER: This software is not affiliated, associated, authorized,
+endorsed by, or in any way officially connected with WhatsApp or Meta Platforms, Inc.
+The official WhatsApp website can be found at https://www.whatsapp.com.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
