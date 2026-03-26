@@ -1,63 +1,71 @@
-# ZapSender
+# ZapSender - Automação de Mensagens e Mídia para WhatsApp
 
-Nome ainda a ser definido, este é um conjunto de Scripts em Python, que podem ser usado para o envio automático de mensagens em massa.
+> **Status do Projeto:** Ativo (v1.0.0)  
+> **Aviso Legal:** Este projeto é uma ferramenta independente e **não possui afiliação, associação ou autorização** da Meta Platforms, Inc. ou do WhatsApp. O uso deve respeitar os Termos de Serviço da plataforma.
 
-## Funcionalidades
+O **ZapSender** é um conjunto de scripts em Python projetado para automação inteligente de mensagens, permitindo o envio em massa com foco em personalização, tratamento de dados e segurança (anti-spam).
 
-- Envio de mensagens, áudios e imagens automático
-- Leitura e Tratamento de planilhas de dados
-- Validação de números
-- Personalização de mensagem p/contato
-- Sistema de cooldown (tempo de espera) totalmente customizável
-- Feedback responsivo do processo de envio
-- Saudações e Emojis podem ser aleatórios 
-- Diferentes versões de uma mensagem podem ser criadas
+---
 
-### Versão Community 
+## 🚀 Funcionalidades Principais
 
-> Feita de Dev para Devs
+* **Multimídia:** Envio automático de textos, áudios e imagens.
+* **Inteligência de Dados:** Leitura e tratamento de planilhas de dados.
+* **Validação:** Verificação de números ativos antes do envio.
+* **Anti-Spam Nativo:** Sistema de *cooldown* (tempo de espera) totalmente customizável.
+* **Personalização Dinâmica:** Saudações, emojis aleatórios e múltiplas versões da mesma mensagem para evitar detecção.
+* **Feedback Responsivo:** Acompanhamento em tempo real do processo de envio.
 
-- Gratuita
-- Código Aberto (Desenvolvimento em conjunto com a comunidade)
-- Sem anúncios
-- Personalização pelo Usuário
-- Requer entendimento em programação
-- Leve
-- Ferramenta CLI
+---
 
-### Versão de Apoiador 
+## ⚖️ Modelos de Licença
 
-> Feita com carinho e capricho para apoiadores do projeto.
+O projeto opera sob o modelo **Open Core**, separando a engine comunitária da interface de alta produtividade para usuários finais.
 
-**Investimento e suporte (Chave PIX):** joaohenrique.jh103@protonmail.com
+### 1. Versão Community (CLI)
+* **Licença:** GNU AGPLv3 (Código Aberto).
+* **Público:** Desenvolvedores e usuários técnicos.
+* **Interface:** Linha de comando (Terminal / CLI).
+* **Custo:** Gratuito e sem anúncios.
+* **Contribuições:** Requer assinatura de CLA (Contributor License Agreement).
 
-- Versão disponível para investimentos acima de **R$ 15**.
-- Código Fechado
-- Sem anúncios
-- Suporte do Desenvolvedor
-- Ferramenta GUI
-- Interface intuitiva
-- Feita para o usuário comum
+### 2. Versão de Apoiador (GUI)
+* **Licença:** Comercial Proprietária (Código Fechado).
+* **Público:** Usuários comuns e empresas.
+* **Interface:** Interface Gráfica intuitiva (Streamlit).
+* **Diferenciais:** Suporte direto do desenvolvedor e facilidade de uso.
 
-## Opções de investimento
+---
 
-- Para solicitar uma cópia do programa com mudanças: **R$ 15**(único) + **R$ 10** p/mudança.
-- Versão Exclusiva para sua demanda: **R$ 50**
-- Suporte do Desenvolvedor: Incluso na Versão de Apoiador ou **R$ 5** p/solicitação.
-- Tornar Sócio do projeto: **R$ 1000 - R$ 10000** (5% - 50%)
-	- Acesso ao Código-Fonte
-	- Condição de Primeiro Sócio
-	- Cada sócio aumenta o valor do projeto
-	- Pode convidar/contratar colaboradores
-	- Tomada de decisão
-	- Permissão de marca
-	- Formalizar parcerias
-- Compra dos direitos: **R$ 20.000** (100%)
+## 💰 Opções de Investimento e Suporte
 
-## Fundador
+**Chave PIX (E-mail):** `joaohenrique.jh103@protonmail.com`
 
-- **João Henrique Alves Ferreira**
+| Modalidade | Descrição | Investimento |
+| :--- | :--- | :--- |
+| **Apoiador** | Acesso à Versão GUI + Suporte | **R$ 20,00** |
+| **Customização** | Mudanças específicas no código sob demanda | **R$ 15,00 / alt** |
+| **Exclusividade** | Versão exclusiva para sua demanda específica | **R$ 70,00** |
+| **Sócio** | Participação na receita (até 50%) + Tomada de decisão | **R$ 1.000 - 10.000** |
+| **Aquisição Total** | Compra de 100% dos direitos de Propriedade Intelectual | **R$ 20.000** |
 
-## Sócios
+---
 
-## Apoiadores
+## 🤝 Contribuição e Ética
+
+Para contribuir com a versão Community:
+1. Faça um Fork do projeto.
+2. Assine o **CLA** (nosso bot solicitará no seu primeiro Pull Request).
+3. Siga as diretrizes de estilo PEP 8.
+
+**Nota sobre LGPD:** O uso desta ferramenta para coleta de dados ou spam sem consentimento é de responsabilidade exclusiva do usuário. O desenvolvedor não se responsabiliza por suspensões de contas ou penalidades aplicadas pela Meta Platforms, Inc.
+
+---
+
+## 👤 Fundador
+* **João Henrique Alves Ferreira** - *Software Developer*
+
+---
+
+## 🌟 Sócios e Apoiadores
+*(Espaço reservado para o reconhecimento público dos investidores do projeto)*
