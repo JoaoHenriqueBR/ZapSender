@@ -39,15 +39,18 @@ O projeto opera sob o modelo **Open Core**, separando a engine comunitária da i
 
 ## 💰 Opções de Investimento e Suporte
 
+**Atenção:** Os valores abaixo são promocionais e exclusivos para os **primeiros 50 apoiadores** ou até **30/04/2026**. Após este período, os valores retornarão ao valor convencional para sustentar o desenvolvimento contínuo.
+
 **Chave PIX (E-mail):** `joaohenrique.jh103@protonmail.com`
 
 | Modalidade | Descrição | Investimento |
 | :--- | :--- | :--- |
-| **Apoiador** | Acesso à Versão GUI + Suporte | **R$ 20,00** |
-| **Customização** | Mudanças específicas no código sob demanda | **R$ 15,00 / alt** |
-| **Exclusividade** | Versão exclusiva para sua demanda específica | **R$ 70,00** |
-| **Sócio** | Participação na receita (até 50%) + Tomada de decisão | **R$ 1.000 - 10.000** |
-| **Aquisição Total** | Compra de 100% dos direitos de Propriedade Intelectual | **R$ 20.000** |
+| **Apoiador (Standard)** | Acesso à Versão GUI + 6 meses de Update | **R$ 47,00** ~~R$ 97,00~~ |
+| **Apoiador (Pro)** | Versão GUI + Suporte Prioritário + Consultoria de Setup | **R$ 97,00** ~~R$ 197,00~~
+| **Customização** | Implementação de funções específicas (sob consulta) | **A partir de R$ 80,00** |
+| **Exclusividade** | Versão exclusiva para sua demanda específica | **R$ 250,00** ~~R$ 450,00~~ |
+| **Sócio** | Participação na receita (até 50%) + Tomada de decisão | **R$ 2.500 - 15.000** |
+| **Aquisição Total** | Compra de 100% dos direitos de Propriedade Intelectual | **R$ 45.000** |
 
 ---
 
