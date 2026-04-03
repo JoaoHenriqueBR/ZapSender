@@ -20,7 +20,30 @@ O **ZapSender** é um conjunto de scripts em Python projetado para automação i
 
 ---
 
+## 🛠️ Especificações Técnicas (Setup)
 
+O ZapSender opera como uma aplicação de console (CLI) interativa via Selenium.
+
+### Requisitos do Sistema
+* **Navegador:** Google Chrome ou Chromium instalado.
+* **Dependências de SO:**
+    * **Windows (Nativo):** Utiliza `pywin32` para manipulação de área de transferência.
+    * **Linux (Experimental):** Requer o pacote `xclip` para suporte a imagens (`sudo apt install xclip`).
+* **WhatsApp Web:** Requer login via escaneamento de QR Code na instância do navegador aberta pelo script.
+
+### Como Executar
+1. Clone o repositório.
+2. Instale as dependências: `pip install -r requirements.txt`
+3. Execute o hub: `python main.py`
+
+### Dependências Principais
+* `selenium` + `webdriver-manager` — Automação de navegador.
+* `pandas` + `openpyxl` — Processamento de dados.
+* `pillow` — Processamento de imagens.
+* `python-dotenv` — Gestão de variáveis de ambiente.
+* `requests` — Integrações e requisições HTTP.
+
+---
 
 ## 💰 Investimento e Suporte
 
