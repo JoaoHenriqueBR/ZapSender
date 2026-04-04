@@ -20,6 +20,35 @@ O **ZapSender** é um conjunto de scripts em Python projetado para automação i
 
 ---
 
+## 📊 Caso de Uso & Performance (Validado em Produção)
+
+O código no estado atual reflete a configuração exata utilizada em um teste de estresse real, resultando em **0% de taxa de banimento**.
+
+### Estudo de Caso: Setor de Educação e Tecnologia
+* **Cenário:** Comunicação direta com uma base de **+500 alunos ativos**.
+* **Resultado:** 100% de estabilidade e preservação da integridade da conta.
+
+### 🛡️ Lógica de Segurança Implementada (Anti-Ban)
+O software utiliza um algoritmo de pausas dinâmicas baseadas no volume de envios e na saúde da conta:
+
+1. **Micro-pausas:** Entre cada envio individual (15s a 30s).
+2. **Pausa de Lote Médio:** A cada 10 envios bem-sucedidos (2min a 8min de descanso).
+3. **Pausa de Segurança Crítica:** A cada 30 envios (8min a 20min de descanso).
+4. **Proteção contra Inválidos:** Pausa automática (1min a 5min) ao detectar 3 números inexistentes seguidos, prevenindo sinalização de "scrapping".
+
+Este teste permitiu o envio direto de Imagens e documentos a mais de 260 alunos em torno de 5h.
+
+A lógica de segurança pode ser modificada diretamente no script, também com base na minha experiência em teste real, também tenho algumas recomendações:
+
+- Evite envios a muitos números que não são contatos adicionados
+- Respostas e conversas em paralelo ajudam a evitar bloqueio por Spam
+- Em números novos, que a conta não tem o costume de enviar muitas mensagens, aja com cautela
+- Aumente a quantidade de envios conforme a quantidade de respostas/contatos
+- Recomendo, mas não é obrigatório, o uso do WhatsApp business em caso de muitas mensagens
+- Lembrando que em caso de muitas denúncias a conta, nem o melhor sistema anti-spam pode salvar, aja com prudência, respeitando os termos do WhatsApp.
+
+---
+
 ## 🛠️ Especificações Técnicas (Setup)
 
 O ZapSender opera como uma aplicação de console (CLI) interativa via Selenium.
