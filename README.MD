@@ -38,7 +38,9 @@ O software utiliza um algoritmo de pausas dinâmicas baseadas no volume de envio
 
 Este teste permitiu o envio direto de Imagens e documentos a mais de 260 alunos em torno de 5h.
 
-A lógica de segurança pode ser modificada diretamente no script, também com base na minha experiência em teste real, também tenho algumas recomendações:
+A lógica de segurança também pode ser modificada diretamente no script, conforme sua necessidade.
+
+Com base na minha experiência em teste real, também tenho algumas recomendações:
 
 - Evite envios a muitos números que não são contatos adicionados
 - Respostas e conversas em paralelo ajudam a evitar bloqueio por Spam
