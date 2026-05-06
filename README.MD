@@ -1,53 +1,100 @@
-# ZapSender - Automação de Mensagens e Mídia para WhatsApp
+# ZapSender - Automação Assistida de Mensagens e Mídia para WhatsApp Web
 
 ![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)
 
 > **Status do Projeto:** Ativo (v1.0.0)  
-> **Aviso Legal:** Este projeto é uma ferramenta independente e **não possui afiliação, associação ou autorização** da Meta Platforms, Inc. ou do WhatsApp. O uso deve respeitar os Termos de Serviço da plataforma.
+> **Aviso Legal:** Este projeto é uma ferramenta independente e **não possui afiliação, associação ou autorização** da Meta Platforms, Inc. ou do WhatsApp.
 
-O **ZapSender** é um conjunto de scripts em Python projetado para automação inteligente de mensagens, permitindo o envio em massa com foco em personalização, tratamento de dados e segurança (anti-spam).
+O **ZapSender** é uma aplicação CLI em Python que auxilia um operador no envio de mensagens personalizadas e anexos pelo **WhatsApp Web**, utilizando **Selenium**.
+
+O fluxo atual é **assistido pelo usuário**: a pessoa executa o script, escolhe o modo de envio, informa os arquivos necessários, abre a sessão no navegador, escaneia o QR Code do WhatsApp Web e acompanha a execução.
+
+O objetivo do projeto é atender fluxos legítimos de comunicação com contatos próprios, como escolas, cursos, equipes internas ou organizações que já possuem relação prévia com os destinatários.
 
 ---
 
 ## 🚀 Funcionalidades Principais
 
-* **Multimídia:** Envio automático de textos, áudios e imagens.
-* **Inteligência de Dados:** Leitura e tratamento de planilhas de dados.
-* **Validação:** Verificação de números ativos antes do envio.
-* **Anti-Spam Nativo:** Sistema de *cooldown* (tempo de espera) totalmente customizável.
-* **Personalização Dinâmica:** Saudações, emojis aleatórios e múltiplas versões da mesma mensagem para evitar detecção.
-* **Feedback Responsivo:** Acompanhamento em tempo real do processo de envio.
+* **Envio assistido de mídia:** suporte a imagens, áudios e documentos com mensagens associadas.
+* **Personalização de conteúdo:** uso de placeholders como nome do contato, saudações e variações de texto.
+* **Leitura de planilhas:** carregamento de contatos a partir de arquivos Excel.
+* **Rastreamento de processamento:** registro local de números já processados para evitar reenvios acidentais em execuções futuras.
+* **Execução interativa:** configuração do fluxo diretamente pelo terminal.
 
 ---
 
-## 📊 Caso de Uso & Performance (Validado em Produção)
+## ✅ O que este projeto faz
 
-O código no estado atual reflete a configuração exata utilizada em um teste de estresse real, resultando em **0% de taxa de banimento**.
+- Abre uma sessão do WhatsApp Web em um navegador controlado por Selenium
+- Lê dados de uma planilha Excel
+- Monta mensagens personalizadas por contato
+- Envia imagens, áudios ou documentos conforme o modo escolhido
+- Mantém um controle local de números já processados
 
-### Estudo de Caso: Setor de Educação e Tecnologia
-* **Cenário:** Comunicação direta com uma base de **+500 alunos ativos**.
-* **Resultado:** 100% de estabilidade e preservação da integridade da conta.
+## 🚫 O que este projeto não faz
 
-### 🛡️ Lógica de Segurança Implementada (Anti-Ban)
-O software utiliza um algoritmo de pausas dinâmicas baseadas no volume de envios e na saúde da conta:
+- Não é uma integração oficial com o WhatsApp
+- Não concede permissão para contatar pessoas sem consentimento
+- Não substitui APIs oficiais quando há necessidade de escala institucional, auditoria ou compliance formal
+- Não elimina a responsabilidade do operador pelo uso adequado da ferramenta
 
-1. **Micro-pausas:** Entre cada envio individual (15s a 30s).
-2. **Pausa de Lote Médio:** A cada 10 envios bem-sucedidos (2min a 8min de descanso).
-3. **Pausa de Segurança Crítica:** A cada 30 envios (8min a 20min de descanso).
-4. **Proteção contra Inválidos:** Pausa automática (1min a 5min) ao detectar 3 números inexistentes seguidos, prevenindo sinalização de "scrapping".
+Se o seu caso de uso exige operação institucional em larga escala, rastreabilidade centralizada, múltiplos operadores ou garantias formais de conformidade, o mais adequado é utilizar um provedor oficial ou uma API apropriada para esse cenário.
 
-Este teste permitiu o envio direto de Imagens e documentos a mais de 260 alunos em torno de 5h.
+---
 
-A lógica de segurança também pode ser modificada diretamente no script, conforme sua necessidade.
+## 🛠️ Modelo de Operação Atual
 
-Com base na minha experiência em teste real, também tenho algumas recomendações:
+Atualmente, o ZapSender funciona como uma automação **interativa** via Selenium.
 
-- Evite envios a muitos números que não são contatos adicionados
-- Respostas e conversas em paralelo ajudam a evitar bloqueio por Spam
-- Em números novos, que a conta não tem o costume de enviar muitas mensagens, aja com cautela
-- Aumente a quantidade de envios conforme a quantidade de respostas/contatos
-- Recomendo, mas não é obrigatório, o uso do WhatsApp business em caso de muitas mensagens
-- Lembrando que em caso de muitas denúncias a conta, nem o melhor sistema anti-spam pode salvar, aja com prudência, respeitando os termos do WhatsApp.
+O operador:
+
+1. inicia o programa pelo terminal
+2. escolhe o tipo de envio
+3. informa a planilha e o arquivo de mídia
+4. configura as mensagens
+5. aguarda a abertura do navegador
+6. escaneia o QR Code do WhatsApp Web
+7. acompanha a execução
+
+Ou seja, o projeto **não opera como serviço em segundo plano**, **não utiliza API oficial** e **depende de uma sessão autenticada do WhatsApp Web no navegador**.
+
+---
+
+## 🧩 Modos de Envio
+
+O hub principal (`main.py`) permite escolher entre:
+
+- **Imagens + Mensagens**
+- **Audios + Mensagens**
+- **Documentos + Mensagens**
+
+Cada fluxo carrega contatos da planilha, prepara a mensagem e envia o conteúdo pelo navegador.
+
+---
+
+## 📝 Personalização de Mensagens
+
+As mensagens configuradas no terminal podem usar placeholders como:
+
+- `{nome}`
+- `{escolha_saudacao}`
+- `{escolha_pergunta}`
+- `{escolha_emoji}`
+- `{escolha_emoji2}`
+- `{escolha_emoji3}`
+
+Isso permite adaptar o conteúdo para cada destinatário dentro de um fluxo supervisionado pelo operador.
+
+---
+
+## 📊 Uso de Planilhas
+
+Os contatos são lidos de um arquivo Excel, com colunas configuráveis para:
+
+- número de celular
+- nome do destinatário
+
+O projeto também gera um arquivo local de controle com os números já processados, usando como base o nome da planilha.
 
 ---
 
@@ -56,7 +103,7 @@ Com base na minha experiência em teste real, também tenho algumas recomendaç�
 O ZapSender opera como uma aplicação de console (CLI) interativa via Selenium.
 
 ### Requisitos do Sistema
-* **Navegador:** Google Chrome ou Chromium instalado.
+* **Navegador:** Google Chrome instalado.
 * **Dependências de SO:**
     * **Windows (Nativo):** Utiliza `pywin32` para manipulação de área de transferência.
     * **Linux (Experimental):** Requer o pacote `xclip` para suporte a imagens (`sudo apt install xclip`).
@@ -76,6 +123,20 @@ O ZapSender opera como uma aplicação de console (CLI) interativa via Selenium.
 
 ---
 
+## ⚖️ Uso Responsável
+
+Antes de utilizar a ferramenta, certifique-se de que:
+
+- existe relação legítima com os destinatários
+- há consentimento quando exigido pela legislação ou pela política da sua instituição
+- o conteúdo enviado é pertinente e esperado pelo destinatário
+- o uso está em conformidade com os Termos de Serviço da plataforma e com normas de privacidade, como a LGPD
+
+O uso desta ferramenta é de responsabilidade exclusiva do operador.
+
+---
+
+
 ## 💰 Investimento e Suporte
 
 Se gostou do meu trabalho e deseja vê-lo evoluir, poderá sempre apoiar através de uma doação, que será usado para investimentos e sustentabilidade do projeto:
@@ -83,7 +144,7 @@ Se gostou do meu trabalho e deseja vê-lo evoluir, poderá sempre apoiar atravé
 **Chave PIX (E-mail):** `joaohenrique.jh103@protonmail.com`
 
 
-**Atenção:** Estou trabalhando em benefícios exclusivos e uma interface gráfica (GUI) para apoiadores e contribuidores, mais detalhes em breve!
+**Atenção:** Estou trabalhando em benefícios exclusivo, como a criação do programa com uma **interface gráfica intuitiva (GUI)**, usando a **API oficial do WhatsApp** para apoiadores e contribuidores, mais detalhes em breve!
 
 
 ## 🤝 Contribuição e Ética
@@ -104,7 +165,7 @@ Para contribuir com sua mudança:
 
 ## 🛡️ Compromisso com o Código Aberto (Open Source Guarantee)
 
-A existência de uma versão comercial para Apoiador(GUI/Premium) serve exclusivamente para financiar o desenvolvimento contínuo, suporte e infraestrutura do ecossistema **ZapSender.**
+A existência de uma versão comercial para Apoiador serve exclusivamente para financiar o desenvolvimento contínuo, suporte e infraestrutura do ecossistema **ZapSender.**
 
 Eu, **João Henrique Alves Ferreira,** comprometo-me publicamente com os seguintes pontos:
 
