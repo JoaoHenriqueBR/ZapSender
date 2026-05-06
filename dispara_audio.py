@@ -212,7 +212,7 @@ def main():
     numeros_ja_processados = []
     if os.path.exists(arquivo_processados):
         with open(arquivo_processados, "r", encoding="utf-8") as f:
-            numeros_ja_processados = [linha.strip() for linha in f if linha.strip()]
+            numeros_ja_processados = [formatar_numero(linha.strip()) for linha in f if linha.strip()]
         print(f"📋 {len(numeros_ja_processados)} números já processados carregados de '{arquivo_processados}'.")
 
     lista_completa = [item for item in lista_para_envio if item['numero'] not in numeros_ja_processados]
@@ -275,21 +275,8 @@ def main():
                 except (KeyError, IndexError):
                     mensagem = template
             else:
-                mensagem1 = f"""{escolha_emoji} {escolha_saudacao}, {nome}! {escolha_emoji}
-
-Insira sua primeira mensagem para enviar"""
-
-                mensagem2 = f"""{escolha_saudacao}, {nome}! Insira sua segunda mensagem para enviar {escolha_emoji3}"""
-
-                mensagem3 = f"""{escolha_emoji} *{escolha_saudacao}, {nome}!* {escolha_emoji}
-
-Insira sua terceira mensagem para enviar {escolha_emoji2}"""
-
-                mensagem4 = f"""*{escolha_saudacao}, {nome}!
-
-Insira sua quarta mensagem para enviar!"""
-
-                mensagem = random.choice([mensagem1, mensagem2, mensagem3, mensagem4])
+                print(f"Erro ao carregar as mensagens personalizadas. Nenhuma legenda será adicionada.")
+                mensagem = ""
 
             # Abre a conversa direta
             link = f"https://web.whatsapp.com/send?phone={telefone}"
