@@ -1,5 +1,5 @@
 """
-ZapSender - Message and Media Sender Script
+ZapSender - Message and Media Sender Menu Script
 
 Copyright (C) 2026  João Henrique Alves Ferreira <joaohenrique.jh103@protonmail.com>
 
@@ -26,6 +26,8 @@ import json
 import os
 import subprocess
 import sys
+
+from configura_browser import encontrar_binario_browser, normalizar_browser
 
 TIPOS_ARQUIVO = {
     "1": ("dispara_imagem.py",     "Imagens + Mensagens",     "imagem"),
@@ -71,10 +73,45 @@ def coletar_configuracoes(tipo):
     print("         Configuracoes de Envio")
     print("=" * 45)
 
-    arquivo_excel = input("\n  Caminho do arquivo Excel: ").strip()
-    caminho_arquivo = input(f"  Caminho do {tipo}: ").strip()
-    coluna_celular = input("  Nome da coluna de celular [CELULAR]: ").strip() or "CELULAR"
-    coluna_nome = input("  Nome da coluna de nomes   [NOME]: ").strip() or "NOME"
+    while True:
+        arquivo_excel = input("\n  Caminho do arquivo Excel: ").strip()
+        if not arquivo_excel:
+            print("  ❌ Caminho do arquivo Excel nao informado.")
+            continue
+        if not os.path.isfile(arquivo_excel):
+            print(f"  ❌ Arquivo Excel nao encontrado: {arquivo_excel}")
+            continue
+        break
+
+    while True:
+        caminho_arquivo = input(f"  Caminho do {tipo}: ").strip()
+        if not caminho_arquivo:
+            print(f"  ❌ Caminho do {tipo} nao informado.")
+            continue
+        if not os.path.isfile(caminho_arquivo):
+            print(f"  ❌ Arquivo do tipo '{tipo}' nao encontrado: {caminho_arquivo}")
+            continue
+        break
+
+    coluna_celular = input("  Nome da coluna de celular [padrão: CELULAR]: ").strip() or "CELULAR"
+    coluna_nome = input("  Nome da coluna de nomes   [padrão: NOME]: ").strip() or "NOME"
+    print("\nConfigurações concluídas com sucesso...")
+    print("="*45)
+    print("\nNavegador a ser usado: ")
+    print("- chrome [Escolhe o Google Chrome]")
+    print("- chromium [Escolhe o Chromium]")
+    print("- brave [Escolhe o Brave]\n")
+    browser = normalizar_browser(
+        input("Escolha o seu (padrao: chrome): ").strip() or "chrome"
+    )
+
+    browser_binary = ""
+    browser_detectado = encontrar_binario_browser(browser)
+    if browser_detectado:
+        print(f"  ✅ Navegador localizado automaticamente: {browser_detectado}")
+    else:
+        print(f"  ⚠️  Nao foi possivel localizar automaticamente o navegador '{browser}'.")
+        browser_binary = input("  Informe o caminho do binario do navegador: ").strip()
 
     resp = input("\n  Ativar testes aleatorios na estrutura do envio? [s/N]: ").strip().lower()
     teste_aleatorio_ativo = resp in ("s", "sim", "y", "yes")
@@ -101,6 +138,8 @@ def coletar_configuracoes(tipo):
         "CAMINHO_ARQUIVO": caminho_arquivo,
         "COLUNA_CELULAR": coluna_celular,
         "COLUNA_NOME": coluna_nome,
+        "BROWSER": browser,
+        "BROWSER_BINARY": browser_binary,
         "TESTE_ALEATORIO": teste_aleatorio_ativo,
         "MENSAGENS": mensagens,
     }

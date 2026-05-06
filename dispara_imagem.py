@@ -1,5 +1,5 @@
 """
-ZapSender - Message and Media Sender Script
+ZapSender - Message and Image Sender Script
 
 Copyright (C) 2026  João Henrique Alves Ferreira <joaohenrique.jh103@protonmail.com>
 
@@ -26,19 +26,18 @@ import random
 import subprocess
 
 import pandas as pd
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
 from io import BytesIO
 from PIL import Image
 import platform
+
+from configura_browser import criar_driver
 
 from datetime import datetime
 
@@ -162,6 +161,8 @@ def main():
         NOME = _config.get("COLUNA_NOME", NOME)
     _mensagens_custom = _config.get("MENSAGENS", [])
     _teste_aleatorio_ativo = _config.get("TESTE_ALEATORIO", True)
+    _browser = _config.get("BROWSER", "chrome")
+    _browser_binary = _config.get("BROWSER_BINARY", "")
 
     # Valida o arquivo de mídia
     if CAMINHO_IMAGEM and not os.path.exists(CAMINHO_IMAGEM):
@@ -214,9 +215,7 @@ def main():
 
     # 2. Iniciar o Navegador
     print("🚀 Iniciando navegador. Por favor, escaneie o QR Code do WhatsApp Web.")
-    options = webdriver.ChromeOptions()
-    # options.add_argument("--headless") # Não use headless para WhatsApp, pode dar bloqueio
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver = criar_driver(browser=_browser, browser_binary=_browser_binary)
     driver.get("https://web.whatsapp.com")
 
     # Aguarda o usuário logar (procura pelo elemento da lista de chats)
