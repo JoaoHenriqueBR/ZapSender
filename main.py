@@ -111,6 +111,7 @@ def coletar_configuracoes(tipo):
         print(f"  ✅ Navegador localizado automaticamente: {browser_detectado}")
     else:
         print(f"  ⚠️  Nao foi possivel localizar automaticamente o navegador '{browser}'.")
+        print("  ℹ️  Se estiver no Windows, informe o caminho completo do executavel (.exe).")
         browser_binary = input("  Informe o caminho do binario do navegador: ").strip()
 
     resp = input("\n  Ativar testes aleatorios na estrutura do envio? [s/N]: ").strip().lower()
