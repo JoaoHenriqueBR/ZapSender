@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import os
+import platform
 import shutil
 
 from selenium import webdriver
@@ -39,9 +40,27 @@ BROWSER_ALIASES = {
 }
 
 BROWSER_BINARIES = {
-    "chrome": ["google-chrome", "google-chrome-stable", "chrome"],
-    "chromium": ["chromium", "chromium-browser"],
-    "brave": ["brave-browser", "brave"],
+    "chrome": ["google-chrome", "google-chrome-stable", "chrome", "chrome.exe"],
+    "chromium": ["chromium", "chromium-browser", "chromium.exe"],
+    "brave": ["brave-browser", "brave", "brave.exe"],
+}
+
+WINDOWS_BROWSER_PATHS = {
+    "chrome": [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        r"%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe",
+    ],
+    "chromium": [
+        r"C:\Program Files\Chromium\Application\chrome.exe",
+        r"C:\Program Files (x86)\Chromium\Application\chrome.exe",
+        r"%LOCALAPPDATA%\Chromium\Application\chrome.exe",
+    ],
+    "brave": [
+        r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe",
+        r"C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe",
+        r"%LOCALAPPDATA%\BraveSoftware\Brave-Browser\Application\brave.exe",
+    ],
 }
 
 
@@ -50,15 +69,47 @@ def normalizar_browser(browser):
     return BROWSER_ALIASES.get(browser_normalizado, browser_normalizado)
 
 
-def encontrar_binario_browser(browser):
-    browser_normalizado = normalizar_browser(browser)
-
+def _encontrar_binario_no_path(browser_normalizado):
     for binary_name in BROWSER_BINARIES.get(browser_normalizado, []):
         binary_path = shutil.which(binary_name)
         if binary_path:
             return binary_path
 
     return None
+
+
+def _expandir_caminho_windows(path):
+    localappdata = os.environ.get("LOCALAPPDATA", "")
+    return path.replace("%LOCALAPPDATA%", localappdata)
+
+
+def _encontrar_binario_windows(browser_normalizado):
+    for candidate in WINDOWS_BROWSER_PATHS.get(browser_normalizado, []):
+        expanded_candidate = _expandir_caminho_windows(candidate)
+        if expanded_candidate and os.path.exists(expanded_candidate):
+            return expanded_candidate
+
+    return None
+
+
+def encontrar_binario_browser(browser):
+    browser_normalizado = normalizar_browser(browser)
+
+    binary_path = _encontrar_binario_no_path(browser_normalizado)
+    if binary_path:
+        return binary_path
+
+    if platform.system() == "Windows":
+        return _encontrar_binario_windows(browser_normalizado)
+
+    return None
+
+
+def _resolver_caminho_informado(browser_binary):
+    binary_path = browser_binary if os.path.isabs(browser_binary) else os.path.abspath(browser_binary)
+    if not os.path.exists(binary_path):
+        raise FileNotFoundError(f"Binário do navegador não encontrado: {binary_path}")
+    return binary_path
 
 
 def criar_driver(browser="chrome", browser_binary=None):
@@ -73,10 +124,7 @@ def criar_driver(browser="chrome", browser_binary=None):
     options = webdriver.ChromeOptions()
 
     if browser_binary:
-        binary_path = os.path.abspath(browser_binary)
-        if not os.path.exists(binary_path):
-            raise FileNotFoundError(f"Binário do navegador não encontrado: {binary_path}")
-        options.binary_location = binary_path
+        options.binary_location = _resolver_caminho_informado(browser_binary)
     else:
         binary_path = encontrar_binario_browser(browser_normalizado)
         if binary_path:
