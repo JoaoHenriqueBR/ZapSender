@@ -103,10 +103,11 @@ O projeto também gera um arquivo local de controle com os números já processa
 O ZapSender opera como uma aplicação de console (CLI) interativa via Selenium.
 
 ### Requisitos do Sistema
-* **Navegador:** Google Chrome instalado.
+* **Navegador:** Google Chrome, Chromium ou Brave instalados.
+* **Detecção automática:** o projeto tenta localizar automaticamente o executável do navegador. No Windows, se a detecção falhar, informe manualmente o caminho completo do `.exe` durante a configuração.
 * **Dependências de SO:**
-    * **Windows (Nativo):** Utiliza `pywin32` para manipulação de área de transferência.
-    * **Linux (Experimental):** Requer o pacote `xclip` para suporte a imagens (`sudo apt install xclip`).
+    * **Windows:** Utiliza `pywin32` para manipulação de área de transferência.
+    * **Linux:** Requer o pacote `xclip` para suporte a imagens (`sudo apt install xclip`).
 * **WhatsApp Web:** Requer login via escaneamento de QR Code na instância do navegador aberta pelo script.
 
 ### Como Executar
