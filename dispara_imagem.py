@@ -241,7 +241,7 @@ def main():
 
         saudacoes_inicio = ["Olá", "Oi", "Oie", "Hey", "Hello", "Hi", "Fala", "Ei", "E aí", "Salve", hora]
         saudacoes_pergunta = ["Tudo bem", "Como vai", "Como está", "Como você vai", "Como você está", "Beleza", "Tudo certo", "Tudo bem com você"]
-        emoji_saudacao = ["🌟", "✨", "🚀", "👋", "🚨", "😁", "😊", "🔥", "💙", "💚", "💛", "💜", "💙", "🗣️"]
+        emoji_saudacao = ["🌟", "✨", "🚀", "👋", "🚨", "😁", "😊", "🔥", "💙", "💚", "💛", "💜", "💙", "👑", "🏆"]
 
         escolha_saudacao = random.choice(saudacoes_inicio)
         escolha_pergunta = random.choice(saudacoes_pergunta)
@@ -344,27 +344,27 @@ def main():
 
             # Verifica se já enviamos 30 e se não é o último da lista
             if total_enviados > 0 and total_enviados % 30 == 0 and i < len(lista_completa) - 1:
-                pausa = random.uniform(480, 1200)
+                pausa = random.uniform(300, 1200)
                 print(f"🛑 Limite de {total_enviados} envios atingido. Pausando por {pausa} segundos para segurança...")
                 print(f"Números enviados - {len(numeros_ja_processados)}: {numeros_ja_processados}")
                 time.sleep(pausa)
                 print("▶️ Retomando envios...")
             # Verifica se já enviamos 10 e se não é o último da lista
             elif total_enviados > 0 and total_enviados % 10 == 0 and i < len(lista_completa) - 1:
-                pausa = random.uniform(120, 480)
+                pausa = random.uniform(30, 480)
                 print(f"🛑 {total_enviados} envios atingido. Pausando por {pausa} segundos para segurança...")
                 print(f"Números enviados - {len(numeros_ja_processados)}: {numeros_ja_processados}")
                 time.sleep(pausa)
                 print("▶️ Retomando envios...")
             else:
                 if total_invalidos > 0 and total_invalidos % 3 == 0 and i < len(lista_completa) - 1:
-                    pausa = random.uniform(60, 300)
+                    pausa = random.uniform(30, 300)
                     print(f"🛑 {total_invalidos} números inválidos atingido. Pausando por {pausa} segundos para segurança...")
                     time.sleep(pausa)
                     print("▶️ Retomando envios...")
                     total_invalidos = 0
                 else:
-                    pausa = random.uniform(15, 30)
+                    pausa = random.uniform(10, 30)
                     print(f'Esperando {pausa} segundos para o próximo envio.')
                     time.sleep(pausa)
 
